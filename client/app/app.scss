@@ -21,6 +21,7 @@ $fa-font-path: "/bower_components/font-awesome/fonts";
     }
 }
 .map-canvas { height: 400px; }
+.angular-google-map-container { height: 400px; }
 // Component styles are injected through grunt
 // injector
 @import 'account/login/login.scss';

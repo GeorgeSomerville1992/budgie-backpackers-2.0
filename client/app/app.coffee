@@ -6,7 +6,8 @@ angular.module 'budgieBackpackersFinalApp', [
   'ngSanitize',
   'ngRoute',
   'btford.socket-io',
-  'ui.map'
+  'ui.map',
+  'uiGmapgoogle-maps'
 ]
 .config ($routeProvider, $locationProvider, $httpProvider) ->
   $routeProvider

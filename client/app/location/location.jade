@@ -1,0 +1,35 @@
+.columns
+  form(name="location_form", ng-submit='addLocation()', novalidate)
+    .input-wrapper
+      label location name
+        input(ng-model="locationName", name="location_name", type="text", required)
+    .input-wrapper
+      label arriving at
+        input(ng-model="arrivalDate", name="arrival_date", type="date")
+    .input-wrapper
+      label departing at
+        input(ng-model="departureDate", name="departure_date", type="date", lower-than='{{arrivalDate}}')
+        span.error(ng-show='location_form.departure_date.$error.lowerThan')
+          | Min cannot exceed max.
+        //- small.error(ng-show='location_form.departure_date.$error.min')
+        //-  | departure date cant be before departure date
+    .input-wrapper
+      label attractionType
+        input(ng-model="attractionType", name="attraction_type",type="text", required)
+    .input-wrapper
+      label range
+        input(ng-model="range", type="integer", required)
+    button(type="submit", ng-click="") Submit
+    .error-container(ng-show='location_form.submitted')
+      small.error(ng-show='location_form.location_name.$error.required') 
+        p enter location name
+      small.error(ng-show='location_form.arrival_date.$error.required')
+        | enter arrivaldate
+      small.error(ng-show='location_form.departure_date.$error.required')
+        | enter departure date
+      small.error(ng-show='location_form.attraction_type.$error.required')
+        | enter attraction type 
+    //- input(name='max', type='number', ng-model='field.max')
+    //- input(name='min', type='number', ng-model='field.min', lower-than='{{field.max}}')
+    //- span.error(ng-show='location_form.min.$error.lowerThan')
+    //-   | Min cannot exceed max.

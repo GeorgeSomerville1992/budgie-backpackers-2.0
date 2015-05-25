@@ -10,5 +10,11 @@ var LocationSchema = new Schema({
     ref: 'User'
   }
 });
-
+LocationSchema.statics = {
+  loadRecent: function(cb) {
+    this.find({})
+      .populate({path:'author', select: 'name'})
+      .exec(cb);
+    }
+};
 module.exports = mongoose.model('Location', LocationSchema);

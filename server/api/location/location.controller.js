@@ -6,10 +6,17 @@ var expedia = require('expedia')({apiKey:"yg7cfr2k3xp3t5r22s3mhymd",cid:"55505"}
 var geocoderProvider = 'google';
 var httpAdapter = 'http';
 var geocoder = require('node-geocoder')(geocoderProvider, httpAdapter);
+
+// make array here, push stuff into upon call 
+// array will be saved objects. 
+
 exports.index = function(req, res) {
   // dont need the load recent in ehere from totorial
   // find commetns for specfic user
-  Location.find(function (err, locations) {
+  console.log('giring location find from get')
+  Location.loadRecent(function (err, locations) {
+    console.log('finding locations')
+    console.log(locations)
     if(err) { return handleError(res, err); }
     return res.json(200, locations);
   });
@@ -33,6 +40,7 @@ exports.create = function(req, res) {
   var location = new Location(_.merge({ author: req.user._id }, req.body));
   location.save(function(err, location) {
     // this should really be talking to a external factory.
+    console.log(location)
     if(err) { return handleError(res, err); }
     // a complete list of options is available at http://developer.ean.com/docs/hotel-list/
     var apiKey = "AIzaSyBDi56DVodoH92MNTpQfcPtloDx0y8CgY8"

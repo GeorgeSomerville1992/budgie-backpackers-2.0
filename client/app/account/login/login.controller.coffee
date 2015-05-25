@@ -6,7 +6,7 @@ angular.module 'budgieBackpackersFinalApp'
   $scope.errors = {}
   $scope.login = (form) ->
     $scope.submitted = true
-
+    console.log('auth', Auth)
     if form.$valid
       # Logged in, redirect to home
       Auth.login
@@ -14,7 +14,7 @@ angular.module 'budgieBackpackersFinalApp'
         password: $scope.user.password
 
       .then ->
-        $location.path '/'
+        $location.path '/lcoation'
 
       .catch (err) ->
         $scope.errors.other = err.message

@@ -4,7 +4,7 @@ angular.module 'budgieBackpackersFinalApp'
 .constant 'GOOGLEGEOCODE', 
   "APIKEY":"AIzaSyBDi56DVodoH92MNTpQfcPtloDx0y8CgY8"
 .controller 'LocationCtrl', ['$scope', '$http', '$location', '$compile', 'socket', 'GOOGLEGEOCODE', 'Auth', ($scope, $http, $location, $compile, socket, GOOGLEGEOCODE, Auth) ->
-  $scope.message = 'Hello'
+  $scope.results = ''
   console.log(Auth.getCurrentUser())
   $scope.autherEmail =  Auth.getCurrentUser().email
   console.log($scope.email)
@@ -29,14 +29,15 @@ angular.module 'budgieBackpackersFinalApp'
       $scope.newLocation = 
         email: $scope.email
         locationName: $scope.locationName
-        arrivalDate: $scope.arrivalDate 
-        departureDate: $scope.departureDate
+        arrivalDate: formatDate($scope.arrivalDate)
+        departureDate: formatDate($scope.departureDate)
         attractionType: $scope.attractionType
         range: $scope.range
-
+      console.log('newLocation', $scope.newLocation)
       console.log($scope.location)
       $http.post('api/locations', content: $scope.newLocation).success((data, status, headers, config) ->
         console.log("thedata", data)
+        $scope.results = data
         $location.path('location/show')
         console.log('geocoded location before', data.geocodedLocation[0])
         $scope.geocodeLocation data.geocodedLocation[0]
@@ -47,7 +48,8 @@ angular.module 'budgieBackpackersFinalApp'
       $scope.location_form.submitted = true
       console.log('location error')
   # callback so maps is provided
-
+  formatDate = (date) ->
+    return (date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear()
   $scope.geocodeLocation = (locationName) ->
     console.log('locationName', locationName)
 
@@ -61,10 +63,28 @@ angular.module 'budgieBackpackersFinalApp'
       zoom: 12
       # .map-canvas(ui-map='myMap', ui-options='mapOptions')
     # testElement = angular.element('<div class="map-canvas" ui-map="myMap", ui-options="mapOptions"></div>')
-    testElement = angular.element('<ui-gmap-google-map center="map.center" zoom="map.zoom"></ui-gmap-google-map>')
+    console.log('results ----->', $scope.results.foundHostels)
+    $scope.hostels = $scope.results.foundHostels.HotelListResponse.HotelList.HotelSummary
+    getMarkerCoords $scope.hostels
+    testElement = angular.element('<ui-gmap-google-map id="googleMap" center="map.center" zoom="map.zoom"></ui-gmap-google-map>')
+    markers = angular.element('<marker data-ng-repeat="hostel hostels" coords=""></marker>')
     angular.element(document.body).append(testElement)
     $compile(testElement)($scope)
+    googleMap = angular.element document.querySelector( '#googleMap' ) 
+    console.log(googleMap)
+    googleMap.append()
     console.log('HELLO')
+  getMarkerCoords = (hostels) ->
+    console.log('firing marker coords', hostels)
+    markers = []
+    i = 0
+    while i < hostels.length
+      marker = 
+        latitude: hostels[i].latitude
+        longitude: hostels[i].longitude
+      markers.push(marker)
+      i += 1
+    console.log(markers)
 ]
 .directive 'lowerThan', [ ->
 

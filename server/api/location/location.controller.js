@@ -53,18 +53,7 @@ exports.create = function(req, res) {
     if(err) { return handleError(res, err); }
     // a complete list of options is available at http://developer.ean.com/docs/hotel-list/
     var apiKey = "AIzaSyBDi56DVodoH92MNTpQfcPtloDx0y8CgY8"
-    var options = {
-      "customerSessionId" : "thisisauniqueID",
-      "customerIpAddress" : "127.0.0.1",
-      "customerUserAgent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko)",
-      "HotelListRequest": {
-        "city": location.content.locationName,
-        "countryCode": "GB",
-        "arrivalDate": location.content.arrivalDate,
-        "departureDate": location.content.departureDate,
-        "numberOfResults": "25"
-      } // now working 
-    }
+
     var foursquareSearchParams = {
       "near": location.content.locationName,
       "query": location.content.attractionType,
@@ -79,24 +68,54 @@ exports.create = function(req, res) {
       fourSquareResults = data
       return fourSquareResults
     })
+    // angular promises USE and RESOLVE
     console.log("fourSquareResults ------------>", fourSquareResults)
-    expedia.hotels.list(options, function(err, hostels){
-      console.log(hostels)
-      console.log(location)
-      if(err)throw new Error(err);
-      geocoder.geocode(location.content.locationName)
-        .then(function(geocode) {
-            console.log('GECODE RESPONSE',geocode);
-            var userLocation = {userDetails:location, foundHostels:hostels, geocodedLocation: geocode, foursquare: fourSquareResults, poo: "hello"}
-            console.log(userLocation)
-            return res.json(201, userLocation);
-        })
-        .catch(function(err) {
-            console.log(err);
-        });
-    });
+    geocoder.geocode(location.content.locationName).then(function(geocode){
+      geocode[0].latitude
+      geocode[0].longitude
+      var options = {
+        "customerSessionId" : "thisisauniqueID",
+        "customerIpAddress" : "127.0.0.1",
+        "customerUserAgent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko)",
+        "HotelListRequest": {
+          "latitude": geocode[0].latitude,
+          "longitude": geocode[0].longitude,
+          "searchRadius": location.content.range,
+          "sort":"PRICE",
+          "countryCode": "GB",
+          "arrivalDate": location.content.arrivalDate,
+          "departureDate": location.content.departureDate,
+          "numberOfResults": 75
+        } // now working 
+      }
+      expedia.hotels.list(options, function(err, hostels){
+        if(err)throw new Error(err);
+        var userLocation = {userDetails:location, foundHostels:hostels, geocodedLocation: geocode, foursquare: fourSquareResults, poo: "hello"}
+        return res.json(201, userLocation);
+      })
 
-  });
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+    // expedia.hotels.list(options, function(err, hostels){
+    //   console.log(hostels)
+    //   console.log(location)
+    //   if(err)throw new Error(err);
+    //   // move this above, so we can add radius to api search. 
+    //   geocoder.geocode(location.content.locationName)
+    //     .then(function(geocode) {
+    //         console.log('GECODE RESPONSE',geocode);
+    //         var userLocation = {userDetails:location, foundHostels:hostels, geocodedLocation: geocode, foursquare: fourSquareResults, poo: "hello"}
+    //         console.log(userLocation)
+    //         return res.json(201, userLocation);
+    //     })
+    //     .catch(function(err) {
+    //         console.log(err);
+    //     });
+    // });
+
+  });// location save
 };
 
 // Updates an existing location in the DB.

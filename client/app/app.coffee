@@ -35,6 +35,7 @@ angular.module 'budgieBackpackersFinalApp', [
 
 .run ($rootScope, $location, Auth) ->
   # Redirect to login if route requires auth and you're not logged in
+  console.log('running THIS TING')
   $rootScope.$on '$routeChangeStart', (event, next) ->
     Auth.isLoggedInAsync (loggedIn) ->
       $location.path "/login" if next.authenticate and not loggedIn

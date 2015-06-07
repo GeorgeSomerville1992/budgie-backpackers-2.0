@@ -14,7 +14,7 @@ angular.module 'budgieBackpackersFinalApp'
         password: $scope.user.password
 
       .then ->
-        $location.path '/lcoation'
+        $location.path '/location'
 
       .catch (err) ->
         $scope.errors.other = err.message

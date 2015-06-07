@@ -16,7 +16,6 @@ exports.register = function(socket) {
 }
 
 function onSave(socket, doc, cb) {
-  socket.emit('location:save', doc);
   Location.populate(doc, {path:'author', select: 'name'}, function(err, location) {
     socket.emit('location:save', location);
   });

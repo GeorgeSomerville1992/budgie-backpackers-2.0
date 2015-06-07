@@ -13,15 +13,23 @@ var geocoder = require('node-geocoder')(geocoderProvider, httpAdapter);
 exports.index = function(req, res) {
   // dont need the load recent in ehere from totorial
   // find commetns for specfic user
-  console.log('giring location find from get')
-  Location.loadRecent(function (err, locations) {
-    console.log('finding locations')
-    console.log(locations)
+  // Location.find({{email:"admin@admin.com"}})
+  console.log('THE REQ', req.body.autherEmail)
+  var autherName = req.body.autherEmail
+  // console.log('the RES', res)
+  Location.loadRecent(autherName,function (err, locations) {
+    // console.log('finding locations')
+    // console.log(locations)
+    console.log('THE LOCATIONS FOUND VA USER ----> ', locations)
     if(err) { return handleError(res, err); }
     return res.json(200, locations);
   });
 };
+// exports.find = function(req, res) {
+//   console.log('THE REQ', req)
 
+
+// }
 // Get a single location
 exports.show = function(req, res) {
   Location.findById(req.params.id, function (err, location) {
@@ -37,10 +45,11 @@ exports.create = function(req, res) {
   //   if(err) { return handleError(res, err); }
   //   return res.json(201, location);
   // });
+  console.log("REQ USER ID", req.user._id)
   var location = new Location(_.merge({ author: req.user._id }, req.body));
   location.save(function(err, location) {
     // this should really be talking to a external factory.
-    console.log(location)
+    console.log("THE LOCATION", location)
     if(err) { return handleError(res, err); }
     // a complete list of options is available at http://developer.ean.com/docs/hotel-list/
     var apiKey = "AIzaSyBDi56DVodoH92MNTpQfcPtloDx0y8CgY8"

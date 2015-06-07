@@ -11,10 +11,14 @@ var LocationSchema = new Schema({
   }
 });
 LocationSchema.statics = {
-  loadRecent: function(cb) {
-    this.find({})
+  loadRecent: function(autherEmail,cb) {
+    this.find({"content.email":autherEmail})
       .populate({path:'author', select: 'name'})
       .exec(cb);
-    }
+    },
+  findAutherFields:function(cb) {
+
+  }
 };
+
 module.exports = mongoose.model('Location', LocationSchema);

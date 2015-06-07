@@ -6,9 +6,13 @@ angular.module 'budgieBackpackersFinalApp'
 .controller 'LocationCtrl', ['$scope', '$http', '$location', '$compile', 'socket', 'GOOGLEGEOCODE', 'Auth', ($scope, $http, $location, $compile, socket, GOOGLEGEOCODE, Auth) ->
   $scope.message = 'Hello'
   console.log(Auth.getCurrentUser())
-  $scope.email = Auth.getCurrentUser().email
+  $scope.autherEmail =  Auth.getCurrentUser().email
   console.log($scope.email)
-  $http.get('api/locations').success (locations) ->
+  $http.put('api/locations', {autherEmail: $scope.autherEmail}).success (locations) ->
+    # so this will get locations back return the user email
+    # nad we can splcie the array up realtive to what the 4scope.email matches
+    # however this is very unproductive as we simply wouldn't want to return a whole database back
+    # the main thing to solve would be to direct query in databasae, But I dont know how.
     $scope.locations = locations
     console.log($scope.locations)
     socket.syncUpdates 'location', $scope.locations, (event, location, locations) ->
@@ -21,23 +25,27 @@ angular.module 'budgieBackpackersFinalApp'
     socket.unsyncUpdates 'location'
     return
   $scope.addLocation = -> 
-    $scope.newLocation = 
-      email: $scope.email
-      locationName: $scope.locationName
-      arrivalDate: $scope.arrivalDate 
-      departureDate: $scope.departureDate
-      attractionType: $scope.attractionType
-      range: $scope.range
+    if $scope.location_form.$valid
+      $scope.newLocation = 
+        email: $scope.email
+        locationName: $scope.locationName
+        arrivalDate: $scope.arrivalDate 
+        departureDate: $scope.departureDate
+        attractionType: $scope.attractionType
+        range: $scope.range
 
-    console.log($scope.location)
-    $http.post('api/locations', content: $scope.newLocation).success((data, status, headers, config) ->
-      console.log("thedata", data)
-      $location.path('location/show')
-      console.log('geocoded location before', data.geocodedLocation[0])
-      $scope.geocodeLocation data.geocodedLocation[0]
-      # get data
-    ).error (data, status, headers, config) ->
-      console.log('we have an error')
+      console.log($scope.location)
+      $http.post('api/locations', content: $scope.newLocation).success((data, status, headers, config) ->
+        console.log("thedata", data)
+        $location.path('location/show')
+        console.log('geocoded location before', data.geocodedLocation[0])
+        $scope.geocodeLocation data.geocodedLocation[0]
+        # get data
+      ).error (data, status, headers, config) ->
+        console.log('we have an error')
+    else
+      $scope.location_form.submitted = true
+      console.log('location error')
   # callback so maps is provided
 
   $scope.geocodeLocation = (locationName) ->
@@ -58,3 +66,36 @@ angular.module 'budgieBackpackersFinalApp'
     $compile(testElement)($scope)
     console.log('HELLO')
 ]
+.directive 'lowerThan', [ ->
+
+  link = ($scope, $element, $attrs, ctrl) ->
+    console.log($scope.departure_date)
+    validate = (viewValue) ->
+      # doesn't Quite work!
+      comparisonModel = $attrs.lowerThan
+      if !viewValue or !comparisonModel
+        # It's valid because we have nothing to compare against
+        ctrl.$setValidity 'lowerThan', true
+      # It's valid if model is lower than the model we're comparing against
+      console.log(viewValue)
+      viewValueDate = new Date(viewValue)
+      viewValueMillSec = viewValueDate.getTime()
+      console.log("comparison model -->", comparisonModel)
+      george = comparisonModel.split("T")
+      comparisonDate = new Date(george[0]).getTime()
+      comparisonModelDate = new Date(comparisonModel)
+      ctrl.$setValidity 'lowerThan', parseInt(viewValue, 10) < parseInt(comparisonDate, 10)
+      viewValue
+
+    ctrl.$parsers.unshift validate
+    ctrl.$formatters.push validate
+    $attrs.$observe 'lowerThan', (comparisonModel) ->
+      # Whenever the comparison model changes we'll re-validate
+      validate ctrl.$viewValue
+    return
+
+  {
+    require: 'ngModel'
+    link: link
+  }
+ ]

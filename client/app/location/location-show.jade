@@ -4,3 +4,8 @@ h4 showlocation details for {{email}}!
   .columns(class="map-container")
   .small-6.columns
     p test
+.row
+  ul.comment-list
+    li(ng-repeat='location in locations')
+      header {{ location.author.name }}
+      p {{ location.content }}

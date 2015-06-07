@@ -8,5 +8,5 @@ module.exports = {
     uri: 'mongodb://localhost/budgiebackpackersfinal-dev'
   },
 
-  seedDB: true
+  seedDB: false
 };

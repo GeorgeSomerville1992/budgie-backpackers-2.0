@@ -6,7 +6,7 @@ var expedia = require('expedia')({apiKey:"yg7cfr2k3xp3t5r22s3mhymd",cid:"55505"}
 var geocoderProvider = 'google';
 var httpAdapter = 'http';
 var geocoder = require('node-geocoder')(geocoderProvider, httpAdapter);
-
+var foursquare = require('node-foursquare-venues')('PJOVUMNXMNMSCGSYVETRKZ23WN2LUR31M0AD04AMKTJAKI5I', '3GG355R0B5D4KMH1J1UIUFXH2ZZCFH4ISOW5WTNYV11JJTDV', '20120610')
 // make array here, push stuff into upon call 
 // array will be saved objects. 
 
@@ -65,6 +65,21 @@ exports.create = function(req, res) {
         "numberOfResults": "25"
       } // now working 
     }
+    var foursquareSearchParams = {
+      "near": location.content.locationName,
+      "query": location.content.attractionType,
+      "price": 1,
+      "venuePhotos": true
+    }
+    console.log(foursquareSearchParams)
+    console.log(foursquare)
+    var fourSquareResults = "something"
+    foursquare.venues.explore(foursquareSearchParams, function(err, data){
+      console.log("firiing callback!!!!!!!", data)
+      fourSquareResults = data
+      return fourSquareResults
+    })
+    console.log("fourSquareResults ------------>", fourSquareResults)
     expedia.hotels.list(options, function(err, hostels){
       console.log(hostels)
       console.log(location)
@@ -72,7 +87,8 @@ exports.create = function(req, res) {
       geocoder.geocode(location.content.locationName)
         .then(function(geocode) {
             console.log('GECODE RESPONSE',geocode);
-            var userLocation = {userDetails:location, foundHostels:hostels, geocodedLocation: geocode}
+            var userLocation = {userDetails:location, foundHostels:hostels, geocodedLocation: geocode, foursquare: fourSquareResults, poo: "hello"}
+            console.log(userLocation)
             return res.json(201, userLocation);
         })
         .catch(function(err) {
